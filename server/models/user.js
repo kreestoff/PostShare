@@ -22,12 +22,7 @@ const User = sequelize.define('user', {
         }
     },
     password: {
-        type: STRING,
-        validate: {
-            notEmpty: true,
-            len: [6, 20],
-            notContains: ' '
-        }
+        type: STRING
     }
 })
 

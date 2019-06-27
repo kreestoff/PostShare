@@ -25,3 +25,16 @@ app.post('/users', (req, res) => {
       }
     })}else{res.json({error: "Please enter valid Username Email and Password"})}
 })
+
+
+app.delete('/user/:id', (req, res) => {
+  User.destroy({
+      where: {
+          id: req.params.id
+      }
+  })
+  .then(user => {
+    res.json({status: 'User has been deleted'})
+  })
+  
+})

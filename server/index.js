@@ -22,6 +22,7 @@ process.env.SECRET_KEY = '!reddit'
 app.use(cors())
 app.use(bodyParser())
 
+//create a new USER
 app.post('/signup', (req, res) => {
   let userData = {
     username: req.body.username,
@@ -40,6 +41,7 @@ app.post('/signup', (req, res) => {
   })
 })
 
+//USER login
 app.post('/login', (req, res) => {
   User.findOne({
     where: {
@@ -63,14 +65,93 @@ app.post('/login', (req, res) => {
   })
 })
 
-app.delete('/users/:id', (req, res) => {
-    User.findOne({
+//delete existing USER
+app.delete('/user/:id', (req, res) => {
+    User.destroy({
         where: {
             id: req.params.id
         }
     })
     .then(user => {
-        delete (user)
+      res.json({status: 'User has been deleted'})
     })
-    res.json({status: req.body.username + ' deleted'})
+    
+})
+
+//create a new CATEGORY
+app.post('/category', (req, res) => {
+  let categoryData = {
+    name: req.body.name,
+    description: req.body.description
+  }
+  Category.create(categoryData)
+  .then(category => {
+    res.json({status: category.name + ' created'})
+  })
+  .catch(err => {
+    res.send('error: ' + err.errors[0].message)
+  })
+})
+
+//get all CATEGORIES
+app.get('/category', (req, res) => {
+  Category.findAll()
+  .then(categories => {
+    res.json(categories)
+  })
+})
+
+//update just the description of a CATEGORY
+app.patch('/category', (req, res) => {
+  Category.findOne({
+    where: {
+      name: req.body.name
+    }
+  })
+  .then(category => {
+    category.description = req.body.description
+    category.save()
+    res.json({status: 'You\'ve successfully updated the description'})
+  })
+})
+
+//create a POST
+app.post('/post', (req, res) => {
+  let postData = {
+    user_id: req.body.user_id,
+    video: req.body.video || null,
+    image: req.body.image || null,
+    title: req.body.title,
+    description: req.body.description || null,
+    category: req.body.category
+  }
+  Post.create(postData) 
+  .then(post => {
+    res.json({status: 'post created'})
+  })
+  .catch(err => {res.send(err)})
+})
+
+//edit a POST's description
+app.patch('/post', (req, res) => {
+  Post.findOne({
+    where: {
+      id: req.body.post_id
+    }
+  })
+  .then(post => {
+    post.description = req.body.description
+    post.save()
+    res.json({status: 'You\'ve successfully updated the description'})
+  })
+})
+
+//delete a POST
+app.delete('/post', (req, res) => {
+  Post.destroy({
+    where: {
+      id: req.body.post_id
+    }
+  })
+  .then(res.json({status: 'Post has been deleted'}))
 })

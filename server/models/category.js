@@ -6,10 +6,19 @@ const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:543
 
 const Category = sequelize.define('category', {
     name: {
-        type: STRING
+        type: STRING,
+        unique: true,
+        validate: {
+            notEmpty: true,
+            len: [3, 16]
+        }
     },
     description: {
-        type: TEXT
+        type: TEXT,
+        validate: {
+            notEmpty: true,
+            len: [20, 200]
+        }
     }
 })
 
