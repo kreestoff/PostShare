@@ -155,3 +155,42 @@ app.delete('/post', (req, res) => {
   })
   .then(res.json({status: 'Post has been deleted'}))
 })
+
+//post a COMMENT
+app.post('/comment', (req, res) => {
+  let commentData = {
+    post_id: req.body.post_id,
+    comment_id: req.body.comment_id || null,
+    user_id: req.body.user_id,
+    content: req.body.content
+  }
+  Comment.create(commentData)
+  .then(comment => {
+    res.json({status: 'comment created'})
+  })
+  .catch(err => {res.send(err.errors[0].message)})
+})
+
+//update the content of a COMMENT
+app.patch('/comment', (req, res) => {
+  Comment.findOne({
+    where: {
+      id: req.body.comment_id
+    }
+  })
+  .then(comment => {
+    comment.content = req.body.content
+    if(comment.content != ""){
+      comment.save()
+    }else{
+      res.json({status: "can't be an empty string"})
+    }
+    res.json({status: `${comment.content}`})
+  })
+})
+//when deleting a comment I don't want any of the responses to be
+//affected so when a client 'deletes' their comment it will set the
+//user id to one that is designated so that the username will display
+//as deleted and the content will be "deleted" and the comment can
+//no longer be voted on
+
