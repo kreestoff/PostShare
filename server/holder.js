@@ -1,40 +1,12 @@
-app.post('/users', (req, res) => {
-    if(req.body.username !== "" && req.body.password !== "" && req.body.email !== "")
-    {let userData = {
-      username: req.body.username,
-      email: req.body.email,
-      password: req.body.password
+app.patch('/category', (req, res) => {
+  Category.findOne({
+    where: {
+      name: req.body.name
     }
-    User.findOne({
-      where: {username: req.body.username} || {email: req.body.email}
-    })
-    .then(user => {
-      if(!user) {
-        bcrypt.hash(req.body.password, 10, (err, hash) => {
-          userData.password = hash
-          User.create(userData)
-          .then(user => {
-            res.json({status: user.username + ' registered'})
-          })
-          .catch(err => {
-            res.send('error: ' + err)
-          })
-        })
-      } else {
-        res.json({error: "User already exists."})
-      }
-    })}else{res.json({error: "Please enter valid Username Email and Password"})}
-})
-
-
-app.delete('/user/:id', (req, res) => {
-  User.destroy({
-      where: {
-          id: req.params.id
-      }
   })
-  .then(user => {
-    res.json({status: 'User has been deleted'})
+  .then(category => {
+    category.description = req.body.description
+    category.save()
+    res.json({status: 'You\'ve successfully updated the description'})
   })
-  
 })
