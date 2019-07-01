@@ -10,7 +10,7 @@ const User = sequelize.define('user', {
         unique: true,
         validate: {
             notEmpty: true,
-            len: [2, 12],
+            len: [2, 16],
             notContains: ' '
         }
     },

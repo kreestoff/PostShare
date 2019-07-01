@@ -10,3 +10,12 @@ app.patch('/category', (req, res) => {
     res.json({status: 'You\'ve successfully updated the description'})
   })
 })
+
+app.delete('/post', (req, res) => {
+  Post.destroy({
+    where: {
+      id: req.body.post_id
+    }
+  })
+  .then(res.json({status: 'Post has been deleted'}))
+})

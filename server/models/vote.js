@@ -7,15 +7,19 @@ const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:543
 const Vote = sequelize.define('vote', {
     post_id: {
         type: INTEGER,
+        allowNull: true
     },
     comment_id: {
-        type: INTEGER
+        type: INTEGER, 
+        allowNull: true
     },
     user_id: {
-        type: INTEGER
+        type: INTEGER,
+        allowNull: false
     },
     vote: {
-        type: INTEGER
+        type: INTEGER,
+        allowNull: false
     }
 })
 
