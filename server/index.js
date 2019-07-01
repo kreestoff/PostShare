@@ -24,6 +24,41 @@ app.use(cors())
 app.use(bodyParser())
 
 
+//create helper function to get TOKEN 
+function getUsername(req, res, callback) {
+  if(req.headers.Authorization && (req.headers.Authorization.split(' ').length > 1)) {
+    let token = req.headers.Authorization.split(' ')[1]
+    jwt.verify(token, process.env.SECRET_KEY, (err, results) => {
+      if(err) {
+        //handle error
+      } else {
+          callback(results.username)
+      }
+    })
+  }
+}
+
+
+
+function authorizeUser(req, res, username, callback) {
+  if(req.headers.Authorization && (req.headers.Authorization.split(' ').length > 1)) {
+    let token = req.headers.Authorization.split(' ')[1]
+    jwt.verify(token, process.env.SECRET_KEY, (err, results) => {
+      if(err) {
+        //handle error
+      } else {
+        if(username === results.username) {
+          callback()
+        } else {
+          //handle error
+        }
+      }
+    })
+  }
+}
+
+
+
 //create a new USER
 app.post('/signup', (req, res) => {
   let userData = {
@@ -54,7 +89,7 @@ app.post('/login', (req, res) => {
     if(user) {
       if(bcrypt.compareSync(req.body.password, user.password)) {
         let token = jwt.sign(user.dataValues, process.env.SECRET_KEY)
-        res.cookie('jwt', token)
+        // res.cookie('jwt', token)
         res.json({
           token: token
         })
@@ -121,19 +156,36 @@ app.patch('/category', (req, res) => {
 
 //create a POST
 app.post('/post', (req, res) => {
-  let postData = {
-    user_id: req.body.user_id,
-    video: req.body.video || null,
-    image: req.body.image || null,
-    title: req.body.title,
-    description: req.body.description || null,
-    category: req.body.category
-  }
-  Post.create(postData) 
-  .then(post => {
-    res.json({status: 'post created'})
+  getUsername(req, res, (username) => {
+    User.getAll({
+      where: {
+        username: username
+      }
+    })
+    .then(users => {
+      if(users.length > 0) {
+        let user = users[0]
+        let postData = {
+          user_id: user.id,
+          video: req.body.video || null,
+          image: req.body.image || null,
+          title: req.body.title,
+          description: req.body.description || null,
+          category: req.body.category
+        }
+        Post.create(postData) 
+        .then(post => {
+          res.json({status: 'post created'})
+        })
+        .catch(err => {res.send(err)})
+      } else {
+        //error
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
   })
-  .catch(err => {res.send(err)})
 })
 
 //edit a POST's description
