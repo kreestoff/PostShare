@@ -1,5 +1,4 @@
 const express = require('express')
-const app = express()
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const cors = require('cors')
@@ -12,6 +11,8 @@ const FollowUser = require('./models/follow_user')
 const PostSave = require('./models/post_save')
 const Post = require('./models/post')
 const Vote = require('./models/vote')
+const CommentSave = require('./models/comment_save')
+const app = express()
 
 app.listen(3000, () => {
     console.log("server is up and listening on 3000...")
@@ -21,6 +22,7 @@ process.env.SECRET_KEY = '!reddit'
 
 app.use(cors())
 app.use(bodyParser())
+
 
 //create a new USER
 app.post('/signup', (req, res) => {
@@ -36,7 +38,7 @@ app.post('/signup', (req, res) => {
       res.json({status: user.username + ' registered'})
     })
     .catch(err => {
-      res.send('error: ' + err.errors[0].message)
+      res.json({error: err.errors[0].message})
     })
   })
 })
@@ -52,8 +54,8 @@ app.post('/login', (req, res) => {
     if(user) {
       if(bcrypt.compareSync(req.body.password, user.password)) {
         let token = jwt.sign(user.dataValues, process.env.SECRET_KEY)
+        res.cookie('jwt', token)
         res.json({
-          user: user.username,
           token: token
         })
       } else {
@@ -77,6 +79,8 @@ app.delete('/user/:id', (req, res) => {
     })
     
 })
+
+
 
 //create a new CATEGORY
 app.post('/category', (req, res) => {
@@ -194,3 +198,122 @@ app.patch('/comment', (req, res) => {
 //as deleted and the content will be "deleted" and the comment can
 //no longer be voted on
 
+//post a FOLLOW_CATEGORY
+//will manage on front end so that followed categories will not have
+//the option to be followed
+app.post('/follow_category', (req, res) => {
+  let followData = {
+    user_id: req.body.user_id,
+    category: req.body.category_id
+  }
+  FollowCategory.create(followData)
+  .then(res.json({status: 'you\'re now following this category'}))
+})
+
+//delete a FOLLOW_CATEGORY
+app.delete('/follow_category', (req, res) => {
+  FollowCategory.destroy({
+    where: {
+      id: req.body.follow_category_id
+    }
+  })
+  .then(res.json({status: 'no longer following'}))
+})
+
+//post FOLLOW_USER
+//will manage on front end so that followed users will not have
+//the option to be followed
+app.post('/follow_user', (req, res) => {
+  let followData = {
+    user_id: req.body.user_id,
+    followed_user_id: req.body.followed_user_id
+  }
+  FollowUser.create(followData)
+  .then(res.json({status: 'you\'re now following this user'}))
+})
+
+//delete a FOLLOW_USER
+app.delete('/follow_user', (req, res) => {
+  FollowUser.destroy({
+    where: {
+      id: req.body.follow_user_id
+    }
+  })
+  .then(res.json({status: 'no longer following'}))
+})
+
+//post VOTE
+app.post('/vote', (req, res) => {
+  let vote = {
+    post_id: req.body.post_id,
+    comment_id: req.body.comment_id,
+    user_id: req.body.user_id,
+    vote: req.body.vote
+  }
+  Vote.create(vote)
+  .then(res.json({status: 'vote has been cast'}))
+})
+
+//patch VOTE
+app.patch('/vote', (req, res) => {
+  Vote.findOne({
+    where: {
+      id: req.body.vote_id
+    }
+  })
+  .then(vote => {
+    vote.vote = req.body.vote
+    vote.save()
+    res.json({status: 'vote successfully updated'})
+  })
+})
+
+//delete VOTE
+app.delete('/vote', (req, res) => {
+  Vote.destroy({
+    where: {
+      id: req.body.vote_id
+    }
+  })
+  .then(res.json({status: 'vote deleted'}))
+})
+
+//post POST_SAVE
+app.post('/post_save', (req, res) => {
+  let postSave = {
+    user_id: req.body.user_id,
+    post_id: req.body.post_id
+  }
+  PostSave.create(postSave)
+  .then(res.json({status: 'post saved'}))
+})
+
+//delete POST_SAVE
+app.delete('/post_save', (req, res) => {
+  PostSave.destroy({
+    where: {
+      id: req.body.post_save_id
+    }
+  })
+  .then(res.json({status: 'post unsaved'}))
+})
+
+//post COMMENT_SAVE
+app.post('/comment_save', (req, res) => {
+  let commentSave = {
+    user_id: req.body.user_id,
+    comment_id: req.body.comment_id
+  }
+  CommentSave.create(commentSave)
+  .then(res.json({status: 'comment saved'}))
+})
+
+//delete COMMENT_SAVE
+app.delete('/comment_save', (req, res) => {
+  CommentSave.destroy({
+    where: {
+      id: req.body.comment_save_id
+    }
+  })
+  .then(res.json({status: 'comment unsaved'}))
+})
