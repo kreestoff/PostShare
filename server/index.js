@@ -26,19 +26,21 @@ app.use(bodyParser())
 
 //create helper function to get TOKEN 
 function getUsername(req, res, callback) {
-  if(req.headers.Authorization && (req.headers.Authorization.split(' ').length > 1)) {
-    let token = req.headers.Authorization.split(' ')[1]
+  if(req.headers.authorization && (req.headers.authorization.split(' ').length > 1)) {
+    let token = req.headers.authorization.split(' ')[1]
     jwt.verify(token, process.env.SECRET_KEY, (err, results) => {
       if(err) {
-        //handle error
+        console.log(err)
       } else {
+        if(results && results.username) {
           callback(results.username)
+        } else {
+          console.log('no user')
+        }
       }
     })
   }
 }
-
-
 
 function authorizeUser(req, res, username, callback) {
   if(req.headers.Authorization && (req.headers.Authorization.split(' ').length > 1)) {
@@ -116,7 +118,6 @@ app.delete('/user/:id', (req, res) => {
 })
 
 
-
 //create a new CATEGORY
 app.post('/category', (req, res) => {
   let categoryData = {
@@ -157,7 +158,7 @@ app.patch('/category', (req, res) => {
 //create a POST
 app.post('/post', (req, res) => {
   getUsername(req, res, (username) => {
-    User.getAll({
+    User.findAll({
       where: {
         username: username
       }
@@ -179,12 +180,20 @@ app.post('/post', (req, res) => {
         })
         .catch(err => {res.send(err)})
       } else {
-        //error
+        res.json({status: 'user not found'})
       }
     })
     .catch(err => {
       console.log(err)
     })
+  })
+})
+
+//get all POSTS
+app.get('/post', (req, res) => {
+  Post.findAll()
+  .then(posts => {
+    res.json(posts)
   })
 })
 
@@ -369,3 +378,4 @@ app.delete('/comment_save', (req, res) => {
   })
   .then(res.json({status: 'comment unsaved'}))
 })
+
