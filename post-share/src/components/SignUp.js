@@ -28,6 +28,9 @@ export default class SignUp extends Component {
         .then(obj => {
             if(obj.error){
                 alert(obj.error)
+            } else {
+                alert('account creation successful, please login')
+                window.location.replace('/login')
             }
         })
         .catch(err => {

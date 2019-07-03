@@ -5,12 +5,7 @@ const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:543
 
 
 const FollowUser = sequelize.define('follow_user', {
-    user_id: {
-        type: INTEGER
-    },
-    followed_user_id: {
-        type: INTEGER
-    }
+  
 })
 
 module.exports = FollowUser

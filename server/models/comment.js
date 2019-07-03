@@ -5,18 +5,6 @@ const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:543
 
 
 const Comment = sequelize.define('comment', {
-    post_id: {
-        type: INTEGER,
-        allowNull: false
-    },
-    comment_id: {
-        type: INTEGER,
-        allowNull: true
-    },
-    user_id: {
-        type: INTEGER,
-        allowNull: false
-    },
     content: {
         type: TEXT,
         validate: {

@@ -19,23 +19,11 @@ export default class Login extends Component {
         })
         .then(res => res.json())
         .then(obj => {
-            console.log(obj.token)
-            localStorage.setItem('token', obj.token)
-            fetch('http://localhost:3000/post', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.token}`
-                },
-                body: JSON.stringify({
-                    'user_id': 1,
-                    'title': "heres a title",
-                    'category': 1
-                }
-                )
-            })
             if(obj.error){
                 alert(obj.error)
+            } else {
+                localStorage.setItem('token', obj.token)
+                window.location.replace("/")
             }
         })
     }
