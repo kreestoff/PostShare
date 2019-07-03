@@ -5,12 +5,7 @@ const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:543
 
 
 const FollowCategory = sequelize.define('follow_category', {
-    user_id: {
-        type: INTEGER
-    },
-    category: {
-        type: INTEGER
-    }
+ 
 })
 
 module.exports = FollowCategory

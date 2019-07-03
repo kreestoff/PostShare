@@ -19,10 +19,11 @@ export default class Login extends Component {
         })
         .then(res => res.json())
         .then(obj => {
-            localStorage.setItem('token', obj.token)
-            window.location.replace("/")
             if(obj.error){
                 alert(obj.error)
+            } else {
+                localStorage.setItem('token', obj.token)
+                window.location.replace("/")
             }
         })
     }

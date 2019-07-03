@@ -32,7 +32,6 @@ export default class NewPost extends Component {
             })
             .then(res => res.json())
             .then(obj => {
-                console.log(obj)
                 postForm.reset()
             })
         }

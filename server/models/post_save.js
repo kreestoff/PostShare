@@ -5,12 +5,7 @@ const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:543
 
 
 const PostSave = sequelize.define('post_save', {
-    user_id: {
-        type: INTEGER
-    },
-    post_id: {
-        type: INTEGER
-    }
+ 
 })
 
 module.exports = PostSave

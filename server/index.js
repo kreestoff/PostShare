@@ -23,6 +23,26 @@ process.env.SECRET_KEY = '!reddit'
 app.use(cors())
 app.use(bodyParser())
 
+const Sequelize = require('sequelize')
+const sequelize = new Sequelize(`postgres://postgres:learnlovecode@127.0.0.1:5432/mod_5_project`);
+
+//Associations
+Category.hasMany(Post)
+Category.belongsToMany(User, {through: {model: FollowCategory}})
+User.hasMany(Post)
+User.belongsToMany(User, {as: 'follower', foreignKey: 'followedId', through: FollowUser})
+Post.belongsTo(Category)
+Post.belongsTo(User)
+Post.belongsToMany(User, {through: {model: PostSave}})
+Comment.belongsToMany(User, {through: {model: CommentSave}})
+Comment.belongsTo(Post)
+Comment.belongsTo(User)
+Comment.belongsTo(Comment)
+
+
+
+sequelize.sync()
+
 
 //create helper function to get TOKEN 
 function getUsername(req, res, callback) {
@@ -117,6 +137,31 @@ app.delete('/user/:id', (req, res) => {
     
 })
 
+//get all USERs
+app.get('/user', (req, res) => {
+  User.findAll()
+  .then(users => {
+    res.json(users)
+  })
+})
+
+//get one USER and their POSTS, COMMENTS and saved things
+app.get('/user/current', (req, res) => {
+  getUsername(req, res, (username) => {
+    User.findAll({
+      where: {
+        username: username
+      }
+    })
+    .then(users => {
+      let user = users[0]
+      user.getPosts()
+      .then(posts => {
+      res.json({user, posts})
+      })
+    })
+  })
+})
 
 //create a new CATEGORY
 app.post('/category', (req, res) => {
@@ -132,7 +177,6 @@ app.post('/category', (req, res) => {
     res.send('error: ' + err.errors[0].message)
   })
 })
-
 //get all CATEGORIES
 app.get('/category', (req, res) => {
   Category.findAll()
@@ -140,7 +184,17 @@ app.get('/category', (req, res) => {
     res.json(categories)
   })
 })
-
+//get one CATEGORY
+app.get('/category/:id', (req, res) => {
+  Category.findOne({
+    where: {
+      id: req.params.id
+    }
+  })
+  .then(category => {
+    res.json(category)
+  })
+})
 //update just the description of a CATEGORY
 app.patch('/category', (req, res) => {
   Category.findOne({
@@ -166,15 +220,16 @@ app.post('/post', (req, res) => {
     .then(users => {
       if(users.length > 0) {
         let user = users[0]
+        let category = req.body.category
         let postData = {
-          user_id: user.id,
+          userId: user.dataValues.id,
+          categoryId: category,
           video: req.body.video || null,
           image: req.body.image || null,
           title: req.body.title,
-          description: req.body.description || null,
-          category: req.body.category
+          description: req.body.description || null
         }
-        Post.create(postData) 
+        Post.create(postData)
         .then(post => {
           res.json({status: 'post created'})
         })
@@ -194,6 +249,18 @@ app.get('/post', (req, res) => {
   Post.findAll()
   .then(posts => {
     res.json(posts)
+  })
+})
+
+//view single POST with ability to comment
+app.get('/post/:id', (req, res) => {
+  Post.findOne({
+    where: {
+      id: req.params.id
+    }
+  })
+  .then(post => {
+    res.json(post)
   })
 })
 
@@ -224,9 +291,9 @@ app.delete('/post', (req, res) => {
 //post a COMMENT
 app.post('/comment', (req, res) => {
   let commentData = {
-    post_id: req.body.post_id,
-    comment_id: req.body.comment_id || null,
-    user_id: req.body.user_id,
+    postId: req.body.post_id,
+    commentId: req.body.comment_id || null,
+    userId: req.body.user_id,
     content: req.body.content
   }
   Comment.create(commentData)
@@ -264,8 +331,8 @@ app.patch('/comment', (req, res) => {
 //the option to be followed
 app.post('/follow_category', (req, res) => {
   let followData = {
-    user_id: req.body.user_id,
-    category: req.body.category_id
+    userId: req.body.user_id,
+    categoryId: req.body.category_id
   }
   FollowCategory.create(followData)
   .then(res.json({status: 'you\'re now following this category'}))
@@ -286,8 +353,8 @@ app.delete('/follow_category', (req, res) => {
 //the option to be followed
 app.post('/follow_user', (req, res) => {
   let followData = {
-    user_id: req.body.user_id,
-    followed_user_id: req.body.followed_user_id
+    followerId: req.body.user_id,
+    followedId: req.body.followed_user_id
   }
   FollowUser.create(followData)
   .then(res.json({status: 'you\'re now following this user'}))
@@ -342,8 +409,8 @@ app.delete('/vote', (req, res) => {
 //post POST_SAVE
 app.post('/post_save', (req, res) => {
   let postSave = {
-    user_id: req.body.user_id,
-    post_id: req.body.post_id
+    userId: req.body.user_id,
+    postId: req.body.post_id
   }
   PostSave.create(postSave)
   .then(res.json({status: 'post saved'}))
@@ -362,8 +429,8 @@ app.delete('/post_save', (req, res) => {
 //post COMMENT_SAVE
 app.post('/comment_save', (req, res) => {
   let commentSave = {
-    user_id: req.body.user_id,
-    comment_id: req.body.comment_id
+    userId: req.body.user_id,
+    commentId: req.body.comment_id
   }
   CommentSave.create(commentSave)
   .then(res.json({status: 'comment saved'}))
