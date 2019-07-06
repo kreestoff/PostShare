@@ -24,8 +24,8 @@ export default class Profile extends Component {
         .then(res => res.json())
         .then(obj => {
             this.setState({
-                user: obj.user,
-                user_posts: obj.posts
+                user: {...obj.user},
+                user_posts: {...obj.posts}
             })
         })
     }

@@ -5,6 +5,7 @@ import Login from './Login'
 import SignUp from './SignUp'
 import NewPost from './NewPost'
 import Profile from './Profile'
+import PostView from './PostView'
 
 class NavBar extends Component {
 
@@ -33,6 +34,7 @@ class NavBar extends Component {
                 <Route path="/signup" component={SignUp} />
                 <Route path="/create-post" component={NewPost} />
                 <Route path="/profile" component={Profile} />
+               
                 </div>
             </Router>
         )

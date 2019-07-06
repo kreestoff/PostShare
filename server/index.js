@@ -34,6 +34,7 @@ User.belongsToMany(User, {as: 'follower', foreignKey: 'followedId', through: Fol
 Post.belongsTo(Category)
 Post.belongsTo(User)
 Post.belongsToMany(User, {through: {model: PostSave}})
+Post.hasMany(Comment)
 Comment.belongsToMany(User, {through: {model: CommentSave}})
 Comment.belongsTo(Post)
 Comment.belongsTo(User)
@@ -145,7 +146,7 @@ app.get('/user', (req, res) => {
   })
 })
 
-//get one USER and their POSTS, COMMENTS and saved things
+//get logged in USER and their POSTS, COMMENTS and saved things
 app.get('/user/current', (req, res) => {
   getUsername(req, res, (username) => {
     User.findAll({
@@ -157,7 +158,11 @@ app.get('/user/current', (req, res) => {
       let user = users[0]
       user.getPosts()
       .then(posts => {
-      res.json({user, posts})
+      let userPosts = posts
+      return userPosts
+      })
+      .then(posts => {
+        return res.json({user, posts})
       })
     })
   })
@@ -260,7 +265,25 @@ app.get('/post/:id', (req, res) => {
     }
   })
   .then(post => {
-    res.json(post)
+    let currentPost = post
+    let postUser
+    let postCategory
+    let postComments
+    currentPost.getUser()
+    .then(user =>{
+      postUser = user
+      return postUser
+    })
+    currentPost.getCategory()
+    .then(category => {
+      postCategory = category
+      return postCategory
+    })
+    currentPost.getComments()
+    .then(comments => {
+      postComments = comments
+      res.json({currentPost, postUser, postCategory, postComments})
+    })
   })
 })
 
@@ -290,12 +313,12 @@ app.delete('/post', (req, res) => {
 
 //post a COMMENT
 app.post('/comment', (req, res) => {
-  let commentData = {
-    postId: req.body.post_id,
-    commentId: req.body.comment_id || null,
-    userId: req.body.user_id,
-    content: req.body.content
-  }
+  let postId = req.body.postId
+  let commentId = req.body.commentId || null
+  let userId = req.body.userId
+  let content = req.body.content
+  let commentData = {postId, commentId, userId, content}
+  console.log(req.body)
   Comment.create(commentData)
   .then(comment => {
     res.json({status: 'comment created'})

@@ -42,13 +42,13 @@ export default class SignUp extends Component {
 
     render() {
         return(
-            <div>
+            <div className="form">
                 <form onSubmit={this.signUp}>
-                    <input type="text" name="username" placeholder="Username"/>
-                    <input type="text" name="email" placeholder="Email" />
-                    <input type="password" name="password" placeholder="Password"/>
-                    <input type="password" name="password" placeholder="Confirm Password"/>
-                    <input type="submit" value="Create Account"/>
+                    <input type="text" name="username" placeholder="Username"/><br></br>
+                    <input type="text" name="email" placeholder="Email" /><br></br>
+                    <input type="password" name="password" placeholder="Password"/><br></br>
+                    <input type="password" name="password" placeholder="Confirm Password"/><br></br>
+                    <input type="submit" value="Create Account"/><br></br>
                 </form>
             </div>
         )
