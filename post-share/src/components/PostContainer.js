@@ -1,19 +1,15 @@
 import React, { Component } from 'react';
 import PostPreview from './PostPreview'
 import CommentForm from './CommentForm'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
+import Comment from './Comment'
 
 
 export default class PostContainer extends Component {
     constructor(){
         super()
         this.state = {
-            posts: [],
-            category: null,
-            user: null,
-            comments: null,
-            post: null,
-            comment: null
+            posts: []
+
         }
     }
 
@@ -27,19 +23,23 @@ export default class PostContainer extends Component {
         })
     }
 
+    //open modal
     openPostView = (category, user, comments, post) => {
         this.setState({category, user, comments, post})
     }
 
+    //close modal
     closePostView = () => {
         this.setState({category: null, user: null, comments: null, post: null})
     }
 
+    //close modal
     outsideClick = (e) => {
-        if(e.target == document.getElementById('postView'))
+        if(e.target === document.getElementById('postView'))
         this.closePostView()
     }
 
+    //creates top level comment on post
     createComment = (e) => {
         e.preventDefault()
         let postForm = document.getElementById('postComment')
@@ -56,7 +56,32 @@ export default class PostContainer extends Component {
               userId, postId, commentId, content
             })
         })
-        this.closePostView()
+        // window.location.reload()
+    }
+
+    //check if a comment is top level
+    topLevelComment = (comment) => {
+        if(comment.commentId === null) {
+            return true
+        } else {return false}
+    }
+
+    //check for child comments
+    filterChildren = (comment1, allComments) => {
+        let childComments = allComments.filter(comment2 => comment2.commentId === comment1.id)
+        if(childComments.length > 0) {
+            return childComments
+        } else {return null}
+    }
+
+    getTree = (allComments, parentComment = null) => {
+        let results = []
+        if(!parentComment) {
+            results = allComments.filter( comment => comment.commentId === null ).map( comment => { return {comment: comment, children: this.getTree(allComments,comment)}})
+        } else {
+            results = allComments.filter( comment => parentComment.id === comment.commentId ).map( comment => { return {comment: comment, children: this.getTree(allComments, comment)}} )
+        }
+        return results
     }
 
     render() {
@@ -73,15 +98,25 @@ export default class PostContainer extends Component {
                         {
                         !this.state.post.image ? null :
                             <div className="contentContainer">
-                                <img src={this.state.post.image}></img>
+                                <img className="mediaContent" src={this.state.post.image} alt="sorry!"></img>
                             </div> 
                         }
                         <div className="postViewTitle">{this.state.post.title}</div>
                         <CommentForm postId={this.state.post.id} userId={this.state.user.id} createComment={this.createComment}/>
                         {/* Container for all comments */}
+                        {
+                        (!this.state.comments) ? null :
                         <div className="commentContainer">
+                            {   
+                                this.getTree(this.state.comments).map(tree => {
+                                return <Comment comment={tree} currentUser={this.state.user.id}/>
+                                })
+                               
+                                
+                            }
 
                         </div>
+                        }
                     </div>
                 </div>
                 }

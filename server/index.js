@@ -42,6 +42,7 @@ Comment.belongsTo(Comment)
 
 
 
+
 sequelize.sync()
 
 
@@ -257,7 +258,7 @@ app.get('/post', (req, res) => {
   })
 })
 
-//view single POST with ability to comment
+//get single POST with ability to comment
 app.get('/post/:id', (req, res) => {
   Post.findOne({
     where: {
@@ -325,6 +326,27 @@ app.post('/comment', (req, res) => {
   })
   .catch(err => {res.send(err.errors[0].message)})
 })
+
+//get user for COMMENT
+app.get('/comment/:id/user', (req, res) => {
+  Comment.findOne({
+    where: {
+      id: req.params.id
+    }
+  })
+  .then(comment => {
+    let currentComment = comment
+    let commentUser
+    currentComment.getUser()
+    .then(user => {
+      commentUser = user
+      return res.json(commentUser)
+    })
+  })
+})
+
+//get child COMMENT of COMMENT
+
 
 //update the content of a COMMENT
 app.patch('/comment', (req, res) => {

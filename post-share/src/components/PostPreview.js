@@ -6,9 +6,6 @@ export default class PostPreview extends Component {
     constructor(){
         super()
         this.state = {
-            category: null,
-            creator: null,
-            comments: null,
             loaded: false
         }
     }
@@ -20,7 +17,7 @@ export default class PostPreview extends Component {
             this.setState({
                 category: {...obj.postCategory},
                 user: {...obj.postUser},
-                comments: {...obj.comments},
+                comments: obj.postComments,
                 post: {...obj.currentPost}
             }, () => this.setState({loaded:true}) )
         })
@@ -40,7 +37,7 @@ export default class PostPreview extends Component {
                     }
                 </div>
                 <div>Category: {this.state.category.name}</div>
-                <p>{this.props.post.title}</p>
+                <p>{this.state.post.title}</p>
             </div>
         )
     }

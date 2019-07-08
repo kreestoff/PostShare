@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
 import PostPreview from './PostPreview'
 
 
@@ -34,7 +33,6 @@ export default class Profile extends Component {
         return(
             <div>
                 <h3>Hello {this.state.user.username}!</h3>
-                <Router>
                     <div>
                         <ul>
                             {this.state.user_posts.map(post => {
@@ -42,9 +40,6 @@ export default class Profile extends Component {
                             })}
                         </ul>
                     </div>
-
-
-                </Router>
             </div>
         )
     }

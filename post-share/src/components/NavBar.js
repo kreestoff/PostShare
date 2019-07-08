@@ -5,7 +5,7 @@ import Login from './Login'
 import SignUp from './SignUp'
 import NewPost from './NewPost'
 import Profile from './Profile'
-import PostView from './PostView'
+
 
 class NavBar extends Component {
 
