@@ -32,10 +32,10 @@ export default class Login extends Component {
 
     render() {
         return(
-            <div>
+            <div className="form">
                 <form onSubmit={this.login}>
-                    <input type="text" name="username" placeholder="Username"/>
-                    <input type="password" name="password" placeholder="Password"/>
+                    <input type="text" name="username" placeholder="Username"/><br></br>
+                    <input type="password" name="password" placeholder="Password"/><br></br>
                     <input type="submit" value="Login"/>
                 </form>
             </div>
