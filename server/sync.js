@@ -20,10 +20,16 @@ User.belongsToMany(User, {as: 'follower', foreignKey: 'followedId', through: Fol
 Post.belongsTo(Category)
 Post.belongsTo(User)
 Post.belongsToMany(User, {through: {model: PostSave}})
+Post.hasMany(Comment)
+Post.hasMany(Vote)
 Comment.belongsToMany(User, {through: {model: CommentSave}})
 Comment.belongsTo(Post)
 Comment.belongsTo(User)
 Comment.belongsTo(Comment)
+Comment.hasMany(Vote)
+Vote.belongsTo(User)
+Vote.belongsTo(Post)
+Vote.belongsTo(Comment)
 
 
 

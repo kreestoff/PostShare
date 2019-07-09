@@ -41,16 +41,17 @@ export default class Comment extends Component {
     createComment = (e) => {
       e.preventDefault()
       let content = e.target[0].value
-      let userId = parseInt(this.props.currentUser)
+      
       let postId = this.props.comment.comment.postId
       let commentId = this.props.comment.comment.id
       fetch('http://localhost:3000/comment', {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.token}`
             },
             body: JSON.stringify({
-              userId, postId, commentId, content
+              postId, commentId, content
             })
         })
     }
