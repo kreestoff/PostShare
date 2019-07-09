@@ -25,7 +25,7 @@ body {
   border-width: 1px;
   border-color: #2e2e2e;
   margin: 10px auto;
-  width: 90%;
+  width: 70%;
   height: 100px;
 }
 
@@ -34,6 +34,7 @@ body {
   float: left;
   position: relative;
   vertical-align: center;
+  background: #f9f9f9;
 }
 
 /* for the modal that shows full content with comments */
@@ -64,7 +65,7 @@ body {
   background-color: #f4f4f4;
   margin: 5% auto;
   padding: 20px;
-  width: 90% ;
+  width: 80% ;
   box-shadow: 0 5px 8px 0 rgba(0,0,0,1);
 }
 
@@ -103,9 +104,23 @@ body {
 
 .comment {
   position: relative;
-  border-left: 1px, solid, #2e2e2e;
+  border-left: solid;
+  border-width: 1px;
   margin: 10px auto;
   padding: 10px;
   width: 95%;
   height: 40px auto;
+}
+
+.vote-container {
+  float: left;
+  border-right: 1px, solid, black;
+}
+
+.upvote {
+  padding: 3px;
+}
+
+.downvote {
+  padding: 3px;
 }

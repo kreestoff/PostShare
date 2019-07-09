@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PostPreview from './PostPreview'
 import CommentForm from './CommentForm'
 import Comment from './Comment'
+import Vote from './Vote'
 
 
 export default class PostContainer extends Component {
@@ -23,9 +24,63 @@ export default class PostContainer extends Component {
         })
     }
 
+    upVote = () => {
+        fetch(`http://localhost:3000/vote/${this.props.post.id}/upvote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+                
+            },
+            body: JSON.stringify({
+                user_id: this.state.user.id
+            })
+        })
+        .then(res => res.json())
+        .then(obj => {
+            let countDiv = document.getElementById(`count${this.props.post.id}`)
+            let count = parseInt(countDiv.innerText)
+            if(obj.status === 'upvoted') {
+                let newTotal = count + 1
+                countDiv.innerText = newTotal
+            } else if(obj.status === 'downvote to upvote') {
+                let newTotal = count + 2
+                countDiv.innerText = newTotal
+            }
+            console.log(obj)
+        })
+    }
+
+    downVote = () => {
+        fetch(`http://localhost:3000/vote/${this.props.post.id}/downvote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            },
+            body: JSON.stringify({
+                user_id: this.state.user.id
+            })
+        })
+        .then(res => res.json())
+        .then(obj => {
+            let countDiv = document.getElementById(`count${this.props.post.id}`)
+            let count = parseInt(countDiv.innerText)
+            if(obj.status === 'upvoted') {
+                let newTotal = count - 1
+                countDiv.innerText = newTotal
+            } else if(obj.status === 'upvote to downvote') {
+                let newTotal = count - 2
+                countDiv.innerText = newTotal
+            }
+            console.log(obj)
+        })
+    }
+
     //open modal
-    openPostView = (category, user, comments, post) => {
-        this.setState({category, user, comments, post})
+    openPostView = (category, user, comments, post, votes) => {
+        this.setState({category, user, comments, post, votes})
+        console.log(votes)
     }
 
     //close modal
@@ -44,35 +99,21 @@ export default class PostContainer extends Component {
         e.preventDefault()
         let postForm = document.getElementById('postComment')
         let content = postForm[0].value
-        let userId = this.state.user.id
         let postId = this.state.post.id
         let commentId = this.props.commentId || null
         fetch('http://localhost:3000/comment', {
           method: 'POST',
           headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.token}`
             },
             body: JSON.stringify({
-              userId, postId, commentId, content
+              postId, commentId, content
             })
         })
         // window.location.reload()
     }
 
-    //check if a comment is top level
-    topLevelComment = (comment) => {
-        if(comment.commentId === null) {
-            return true
-        } else {return false}
-    }
-
-    //check for child comments
-    filterChildren = (comment1, allComments) => {
-        let childComments = allComments.filter(comment2 => comment2.commentId === comment1.id)
-        if(childComments.length > 0) {
-            return childComments
-        } else {return null}
-    }
 
     getTree = (allComments, parentComment = null) => {
         let results = []
@@ -90,11 +131,16 @@ export default class PostContainer extends Component {
                  {/* This is the modal that will be created to view the full photo/content 
                 where the user can read comments or leave comments and vote if they are 
                 logged in */}
-                { !this.state.post ? null :
+                { !this.state.post || !this.state.category || !this.state.user || !this.state.comments ? null :
                 <div onClick={(e) => this.outsideClick(e)}id="postView">
                     <div className="postContent">
                         <span id="closePostView" onClick={this.closePostView}>&times;</span>
-                        <div className="postInfo">Category: {this.state.category.name} Posted by {this.state.user.username}</div>
+                        <div className="postInfo">
+                            <Vote postId={this.state.post.id} upVote={this.upVote} downVote={this.downVote} votes={this.state.votes}/>
+                            <p>Category: {this.state.category.name} Posted by{this.state.user.username}
+                            </p>
+
+                        </div>
                         {
                         !this.state.post.image ? null :
                             <div className="contentContainer">
