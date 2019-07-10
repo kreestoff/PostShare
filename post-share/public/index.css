@@ -72,7 +72,7 @@ body {
 .contentContainer {
   padding: 20px;
   position: relative;
-  margin: auto;
+  margin: 15px;
 }
 
 .mediaContent {
@@ -100,21 +100,24 @@ body {
   border-color: #2e2e2e;
   margin: 10px auto;
   width: 95%;
+  padding: 5px;
 }
 
 .comment {
   position: relative;
   border-left: solid;
   border-width: 1px;
-  margin: 10px auto;
+  margin: 5px;
   padding: 10px;
-  width: 95%;
+  width: 90%;
   height: 40px auto;
 }
 
 .vote-container {
   float: left;
   border-right: 1px, solid, black;
+  padding: 5px;
+  z-index: 1;
 }
 
 .upvote {

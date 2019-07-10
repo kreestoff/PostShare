@@ -21,7 +21,9 @@ export default class CategorySelector extends Component {
     render() {
         return(
             <select>
-            {
+                <option value="">Select a Category</option>
+            {   
+                
                 this.state.categories.map(category => {
                  return <option key={category.id} value={category.id}>{category.name}</option>
                 })

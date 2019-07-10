@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import CommentForm from './CommentForm'
-
+import CommentVote from './CommentVote'
 
 
 export default class Comment extends Component {
@@ -21,7 +21,8 @@ export default class Comment extends Component {
       .then(res => res.json())
       .then(obj => {
         this.setState({
-          user: {...obj},
+          user: {...obj.commentUser},
+          votes: obj.voteTotal,
           loaded: true
         })
       })
@@ -31,9 +32,13 @@ export default class Comment extends Component {
   
     //open the comment form to comment on a comment
     respondToComment = (e) => {
-      if(e.target !== document.getElementById(e.target.id)) {
-        let newClicked = !this.state.clicked
-        this.setState({clicked: newClicked})
+      if(!localStorage.token){
+        alert("Create an account or log in to comment")
+      } else {
+        if(e.target !== document.getElementById(e.target.id)) {
+          let newClicked = !this.state.clicked
+          this.setState({clicked: newClicked})
+        }
       }
     }
 
@@ -41,7 +46,6 @@ export default class Comment extends Component {
     createComment = (e) => {
       e.preventDefault()
       let content = e.target[0].value
-      
       let postId = this.props.comment.comment.postId
       let commentId = this.props.comment.comment.id
       fetch('http://localhost:3000/comment', {
@@ -56,15 +60,76 @@ export default class Comment extends Component {
         })
     }
 
+    upVote = () => {
+      if(localStorage.token) {
+        fetch(`http://localhost:3000/comment/${this.props.comment.comment.id}/upvote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+                
+            },
+            body: JSON.stringify({
+                user_id: this.state.user.id
+            })
+        })
+        .then(res => res.json())
+        .then(obj => {
+            console.log(obj)
+            let countDiv = document.getElementById(`commentCount${this.props.comment.comment.id}`)
+            let count = parseInt(countDiv.innerText)
+            if(obj.status === 'upvoted') {
+                let newTotal = count + 1
+                countDiv.innerText = newTotal
+            } else if(obj.status === 'downvote to upvote') {
+                let newTotal = count + 2
+                countDiv.innerText = newTotal
+              }
+        })
+      } else {alert("Login or Sign up to vote")}
+  }
+
+  downVote = () => {
+    if(localStorage.token) {
+      fetch(`http://localhost:3000/comment/${this.props.comment.comment.id}/downvote`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.token}`
+              
+          },
+          body: JSON.stringify({
+              user_id: this.state.user.id
+          })
+      })
+      .then(res => res.json())
+      .then(obj => {
+          console.log(obj)
+          let countDiv = document.getElementById(`commentCount${this.props.comment.comment.id}`)
+          let count = parseInt(countDiv.innerText)
+          if(obj.status === 'downvoted') {
+              let newTotal = count + 1
+              countDiv.innerText = newTotal
+          } else if(obj.status === 'upvote to downvote') {
+              let newTotal = count - 2
+              countDiv.innerText = newTotal
+            }
+      })
+    } else {alert("Login or Sign up to vote")}
+}
+
+  
+
     render() {
         return(
           <div className="comment" >
+            <CommentVote upVote={this.upVote} downVote={this.downVote} commentId={this.props.comment.comment.id} votes={this.state.votes}/>
             {!this.state.loaded ? null :
             <>
               <div>{this.state.user.username}</div>
               <div >{this.props.comment.comment.content}</div>
               <button onClick={(e) => this.respondToComment(e)}>reply</button>
-            {this.state.clicked ? <CommentForm createComment={this.createComment} commentId={this.props.comment.id}/> : null}
+            {this.state.clicked ? <CommentForm createComment={this.createComment} commentId={this.props.comment.comment.id}/> : null}
             { !this.props.comment.children ? null :
               this.props.comment.children.map(comment => {
                 return <Comment key={comment.id} comment={comment} currentUser={this.props.currentUser} />
