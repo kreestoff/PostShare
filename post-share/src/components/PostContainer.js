@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import PostPreview from './PostPreview'
-import CommentForm from './CommentForm'
-import Comment from './Comment'
-import Vote from './Vote'
+import PostPreview from './PostPreview';
+import PostView from './PostView';
+import CategorySelector from './CategorySelector'
 
 
 export default class PostContainer extends Component {
     constructor(){
         super()
         this.state = {
+            originalPosts: [],
             posts: []
 
         }
@@ -19,6 +19,7 @@ export default class PostContainer extends Component {
         .then(res => res.json())
         .then(obj => {
             this.setState({
+                originalPosts: obj,
                 posts: obj
             })
         })
@@ -38,7 +39,7 @@ export default class PostContainer extends Component {
         })
         .then(res => res.json())
         .then(obj => {
-            let countDiv = document.getElementById(`count${this.props.post.id}`)
+            let countDiv = document.getElementById(`postCount${this.props.post.id}`)
             let count = parseInt(countDiv.innerText)
             if(obj.status === 'upvoted') {
                 let newTotal = count + 1
@@ -64,7 +65,7 @@ export default class PostContainer extends Component {
         })
         .then(res => res.json())
         .then(obj => {
-            let countDiv = document.getElementById(`count${this.props.post.id}`)
+            let countDiv = document.getElementById(`postCount${this.props.post.id}`)
             let count = parseInt(countDiv.innerText)
             if(obj.status === 'upvoted') {
                 let newTotal = count - 1
@@ -78,14 +79,15 @@ export default class PostContainer extends Component {
     }
 
     //open modal
-    openPostView = (category, user, comments, post, votes) => {
-        this.setState({category, user, comments, post, votes})
-        console.log(votes)
+    openPostView = (post) => {
+        this.setState({post})
+        console.log(post)
     }
 
     //close modal
     closePostView = () => {
-        this.setState({category: null, user: null, comments: null, post: null})
+        this.setState({post: null})
+        window.location.reload()
     }
 
     //close modal
@@ -94,80 +96,37 @@ export default class PostContainer extends Component {
         this.closePostView()
     }
 
-    //creates top level comment on post
-    createComment = (e) => {
-        e.preventDefault()
-        let postForm = document.getElementById('postComment')
-        let content = postForm[0].value
-        let postId = this.state.post.id
-        let commentId = this.props.commentId || null
-        fetch('http://localhost:3000/comment', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${localStorage.token}`
-            },
-            body: JSON.stringify({
-              postId, commentId, content
+    filterPosts = (e) => {
+        let category = e.target.value
+        if(category == "") {
+            console.log("empty string")
+            this.setState({
+                posts: this.state.originalPosts
             })
-        })
-        // window.location.reload()
-    }
-
-
-    getTree = (allComments, parentComment = null) => {
-        let results = []
-        if(!parentComment) {
-            results = allComments.filter( comment => comment.commentId === null ).map( comment => { return {comment: comment, children: this.getTree(allComments,comment)}})
         } else {
-            results = allComments.filter( comment => parentComment.id === comment.commentId ).map( comment => { return {comment: comment, children: this.getTree(allComments, comment)}} )
+            console.log("sorting by something")
+            let filteredPosts = this.state.originalPosts.filter(post => post.categoryId == category)
+            console.log(filteredPosts)
+            this.setState({
+                posts: filteredPosts
+            })
         }
-        return results
     }
 
     render() {
         return(
             <div className="container">
-                 {/* This is the modal that will be created to view the full photo/content 
-                where the user can read comments or leave comments and vote if they are 
-                logged in */}
-                { !this.state.post || !this.state.category || !this.state.user || !this.state.comments ? null :
-                <div onClick={(e) => this.outsideClick(e)}id="postView">
-                    <div className="postContent">
-                        <span id="closePostView" onClick={this.closePostView}>&times;</span>
-                        <div className="postInfo">
-                            <Vote postId={this.state.post.id} upVote={this.upVote} downVote={this.downVote} votes={this.state.votes}/>
-                            <p>Category: {this.state.category.name} Posted by{this.state.user.username}
-                            </p>
-
-                        </div>
-                        {
-                        !this.state.post.image ? null :
-                            <div className="contentContainer">
-                                <img className="mediaContent" src={this.state.post.image} alt="sorry!"></img>
-                            </div> 
-                        }
-                        <div className="postViewTitle">{this.state.post.title}</div>
-                        <CommentForm postId={this.state.post.id} userId={this.state.user.id} createComment={this.createComment}/>
-                        {/* Container for all comments */}
-                        {
-                        (!this.state.comments) ? null :
-                        <div className="commentContainer">
-                            {   
-                                this.getTree(this.state.comments).map(tree => {
-                                return <Comment comment={tree} currentUser={this.state.user.id}/>
-                                })
-                               
-                                
-                            }
-
-                        </div>
-                        }
-                    </div>
+                <div className="post-container-header">
+                    <form onChange={(e) => this.filterPosts(e)}>
+                    <CategorySelector />
+                    </form>
                 </div>
+                {
+                    !this.state.post ? null :
+                    <PostView post={this.state.post} outsideClick={this.outsideClick} closePostView={this.closePostView}/>
                 }
                 <div>
-                {
+                {   this.state.post ? null :
                     this.state.posts.map(post => {
                        return <PostPreview key={post.id} post={post} openPostView={this.openPostView}/>
                     })

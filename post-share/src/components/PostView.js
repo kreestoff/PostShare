@@ -1,32 +1,63 @@
 import React, { Component } from 'react';
-import PostPreview from './PostPreview'
 import CommentForm from './CommentForm'
 import Comment from './Comment'
-import Vote from './Vote'
-import PostView from './PostView'
+import PostVote from './PostVote'
 
 
-export default class PostContainer extends Component {
+export default class PostView extends Component {
     constructor(){
         super()
         this.state = {
-            posts: []
+            post: null
 
         }
     }
 
     componentDidMount(){
-        fetch('http://localhost:3000/post')
-        .then(res => res.json())
-        .then(obj => {
-            this.setState({
-                posts: obj
-            })
-        })
-    }
+      fetch(`http://localhost:3000/post/${this.props.post.id}`)
+      .then(res => res.json())
+      .then(obj => {
+          this.setState({
+              category: {...obj.postCategory},
+              user: {...obj.postUser},
+              comments: obj.postComments,
+              post: {...obj.currentPost},
+              votes: obj.voteTotal
+          }, () => this.setState({loaded:true}) )
+      })
+  }
 
     upVote = () => {
-        fetch(`http://localhost:3000/vote/${this.props.post.id}/upvote`, {
+      if(localStorage.token) {
+        fetch(`http://localhost:3000/post/${this.props.post.id}/upvote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.token}`
+            },
+            body: JSON.stringify({
+                user_id: this.state.user.id
+            })
+        })
+        .then(res => res.json())
+        .then(obj => {
+            let countDiv = document.getElementById(`postCount${this.props.post.id}`)
+            let count = parseInt(countDiv.innerText)
+            if(obj.status === 'upvoted') {
+                let newTotal = count + 1
+                countDiv.innerText = newTotal
+            } else if(obj.status === 'downvote to upvote') {
+                let newTotal = count + 2
+                countDiv.innerText = newTotal
+            }
+            console.log(obj)
+        })
+      } else {alert("Login or Sign up to vote")}
+    }
+
+    downVote = () => {
+      if(localStorage.token) {
+        fetch(`http://localhost:3000/post/${this.props.post.id}/downvote`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -39,35 +70,9 @@ export default class PostContainer extends Component {
         })
         .then(res => res.json())
         .then(obj => {
-            let countDiv = document.getElementById(`count${this.props.post.id}`)
+            let countDiv = document.getElementById(`postCount${this.props.post.id}`)
             let count = parseInt(countDiv.innerText)
-            if(obj.status === 'upvoted') {
-                let newTotal = count + 1
-                countDiv.innerText = newTotal
-            } else if(obj.status === 'downvote to upvote') {
-                let newTotal = count + 2
-                countDiv.innerText = newTotal
-            }
-            console.log(obj)
-        })
-    }
-
-    downVote = () => {
-        fetch(`http://localhost:3000/vote/${this.props.post.id}/downvote`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.token}`
-            },
-            body: JSON.stringify({
-                user_id: this.state.user.id
-            })
-        })
-        .then(res => res.json())
-        .then(obj => {
-            let countDiv = document.getElementById(`count${this.props.post.id}`)
-            let count = parseInt(countDiv.innerText)
-            if(obj.status === 'upvoted') {
+            if(obj.status === 'downvoted') {
                 let newTotal = count - 1
                 countDiv.innerText = newTotal
             } else if(obj.status === 'upvote to downvote') {
@@ -76,24 +81,12 @@ export default class PostContainer extends Component {
             }
             console.log(obj)
         })
-    }
+      } else {alert("Login or Sign up to vote")}
+  }
 
-    //open modal
-    openPostView = (category, user, comments, post, votes) => {
-        this.setState({category, user, comments, post, votes})
-        console.log(votes)
-    }
+ 
 
-    //close modal
-    closePostView = () => {
-        this.setState({category: null, user: null, comments: null, post: null})
-    }
 
-    //close modal
-    outsideClick = (e) => {
-        if(e.target === document.getElementById('postView'))
-        this.closePostView()
-    }
 
     //creates top level comment on post
     createComment = (e) => {
@@ -112,7 +105,7 @@ export default class PostContainer extends Component {
               postId, commentId, content
             })
         })
-        // window.location.reload()
+        window.location.reload()
     }
 
 
@@ -133,15 +126,14 @@ export default class PostContainer extends Component {
                 where the user can read comments or leave comments and vote if they are 
                 logged in */}
                 { !this.state.post || !this.state.category || !this.state.user || !this.state.comments ? null :
-                <div onClick={(e) => this.outsideClick(e)}id="postView">
+                <div onClick={(e) => this.props.outsideClick(e)}id="postView">
                     <div className="postContent">
-                        <span id="closePostView" onClick={this.closePostView}>&times;</span>
+                        <span id="closePostView" onClick={this.props.closePostView}>&times;</span>
                         <div className="postInfo">
-                            <Vote postId={this.state.post.id} upVote={this.upVote} downVote={this.downVote} votes={this.state.votes}/>
-                            <p>Category: {this.state.category.name} Posted by{this.state.user.username}
+                            <PostVote postId={this.state.post.id} upVote={this.upVote} downVote={this.downVote} votes={this.state.votes}/>
+                            <p>Category: {this.state.category.name} Posted by {this.state.user.username}
                             </p>
-
-                        </div>
+                        </div><br></br>
                         {
                         !this.state.post.image ? null :
                             <div className="contentContainer">
@@ -149,7 +141,9 @@ export default class PostContainer extends Component {
                             </div> 
                         }
                         <div className="postViewTitle">{this.state.post.title}</div>
-                        <CommentForm postId={this.state.post.id} userId={this.state.user.id} createComment={this.createComment}/>
+                        { !localStorage.token ? null :
+                          <CommentForm postId={this.state.post.id} userId={this.state.user.id} createComment={this.createComment}/>
+                        }
                         {/* Container for all comments */}
                         {
                         (!this.state.comments) ? null :
@@ -167,13 +161,6 @@ export default class PostContainer extends Component {
                     </div>
                 </div>
                 }
-                <div>
-                {
-                    this.state.posts.map(post => {
-                       return <PostPreview key={post.id} post={post} openPostView={this.openPostView}/>
-                    })
-                }
-                </div>
             </div>
         )
     }

@@ -50,6 +50,7 @@ Vote.belongsTo(Comment)
 
 
 
+
 sequelize.sync()
 
 
@@ -164,13 +165,11 @@ app.get('/user/current', (req, res) => {
     })
     .then(users => {
       let user = users[0]
+      let userPosts
       user.getPosts()
       .then(posts => {
-      let userPosts = posts
-      return userPosts
-      })
-      .then(posts => {
-        return res.json({user, posts})
+      userPosts = posts
+      res.json({userPosts, user})
       })
     })
   })
@@ -353,7 +352,7 @@ app.post('/comment', (req, res) => {
   })
 })
 
-//get user for COMMENT
+//get user and votes for COMMENT
 app.get('/comment/:id/user', (req, res) => {
   Comment.findOne({
     where: {
@@ -363,10 +362,18 @@ app.get('/comment/:id/user', (req, res) => {
   .then(comment => {
     let currentComment = comment
     let commentUser
+    let voteTotal = 0
     currentComment.getUser()
     .then(user => {
       commentUser = user
-      return res.json(commentUser)
+      return commentUser
+    })
+    currentComment.getVotes()
+    .then(votes => {
+      votes.forEach(vote => {
+        voteTotal += vote.vote
+      })
+      res.json({commentUser, voteTotal})
     })
   })
 })
@@ -442,7 +449,7 @@ app.delete('/follow_user', (req, res) => {
 })
 
 //post UPVOTE to post
-app.post('/vote/:postId/upvote', (req, res) => {
+app.post('/post/:postId/upvote', (req, res) => {
   getUsername(req, res, (username) => {
     User.findAll({
       where: {
@@ -476,7 +483,7 @@ app.post('/vote/:postId/upvote', (req, res) => {
 })
 
 //post DOWNVOTE to post
-app.post('/vote/:postId/downvote', (req, res) => {
+app.post('/post/:postId/downvote', (req, res) => {
   getUsername(req, res, (username) => {
     User.findAll({
       where: {
@@ -510,42 +517,71 @@ app.post('/vote/:postId/downvote', (req, res) => {
 })
 
 //post UPVOTE to comment
-app.post('/vote/:commentId/upvote', (req, res) => {
-  let voteData = {
-    commentId: req.params.commentId,
-    userId: req.body.user_id,
-    vote: 1
-  }
-  Vote.findAll({where: {commentId: voteData.commentId}})
-  .then(votes => {
-    if(votes.filter(vote => vote.userId === voteData.userId).length > 0) {
-      let castVote = votes.filter(vote => vote.userId === voteData.userId)[0]
-      if(castVote.vote === 1) {
-        res.json({status: 'already upvoted'})
-      } else {castVote.update({vote: 1})}
-    } else {
-      Vote.create(voteData)
-      .then(res.json({status: 'vote has been cast'}))
-    }
+app.post('/comment/:commentId/upvote', (req, res) => {
+  getUsername(req, res, (username) => {
+    User.findAll({
+      where: {
+        username: username
+      }
+    })
+    .then(users => {
+      let user = users[0]
+      let voteData = {
+        commentId: req.params.commentId,
+        userId: user.id,
+        vote: 1
+      }
+      Vote.findAll({where: {commentId: voteData.commentId}})
+      .then(votes => {
+        if(votes.filter(vote => vote.userId === voteData.userId).length > 0) {
+          let castVote = votes.filter(vote => vote.userId === voteData.userId)[0]
+          if(parseInt(castVote.vote) === 1) {
+            res.json({status: 'already upvoted'})
+          } else {
+            castVote.update({vote: 1})
+            return res.json({status: 'downvote to upvote'})
+        }
+        } else {
+          Vote.create(voteData)
+          .then(res.json({status: 'upvoted'}))
+        }
+      })
+    })
   })
 })
 
 
 //post DOWNVOTE to comment
-app.post('/vote/:commentId/downvote', (req, res) => {
-  let voteData = {
-    commentId: req.params.commentId,
-    userId: req.body.user_id,
-    vote: -1
-  }
-  Vote.findAll({where: {commentId: voteData.commentId}})
-  .then(votes => {
-    if(votes.filter(vote => vote.userId === voteData.userId.length > 0)) {
-      res.json({status: 'already downvoted'})
-    } else {
-      Vote.create(voteData)
-      .then(res.json({status: 'vote has been cast'}))
-    }
+app.post('/comment/:commentId/downvote', (req, res) => {
+  getUsername(req, res, (username) => {
+    User.findAll({
+      where: {
+        username: username
+      }
+    })
+    .then(users => {
+      let user = users[0]
+      let voteData = {
+        commentId: req.params.commentId,
+        userId: user.id,
+        vote: 1
+      }
+      Vote.findAll({where: {commentId: voteData.commentId}})
+      .then(votes => {
+        if(votes.filter(vote => vote.userId === voteData.userId).length > 0) {
+          let castVote = votes.filter(vote => vote.userId === voteData.userId)[0]
+          if(parseInt(castVote.vote) === -1) {
+            res.json({status: 'already downvoted'})
+          } else {
+            castVote.update({vote: -1})
+            return res.json({status: 'upvote to downvote'})
+        }
+        } else {
+          Vote.create(voteData)
+          .then(res.json({status: 'downvoted'}))
+        }
+      })
+    })
   })
 })
 
