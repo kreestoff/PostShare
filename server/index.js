@@ -175,6 +175,44 @@ app.get('/user/current', (req, res) => {
   })
 })
 
+// app.get('/user/current', (req, res) => {
+//   getUsername(req, res, (username) => {
+//     User.findAll({
+//       where: {
+//         username: username
+//       }
+//     })
+//     .then(async (users) => {
+//       let user = users[0]
+//       let postVotes = []
+//       let commentVotes = []
+//       await user.getPosts()
+//       .then(posts => {
+//       userPosts = posts
+//       return userPosts
+//       })
+//       userPosts.forEach(post => {
+//         await post.getVotes()
+//         .then(votes => {
+//           postVotes.push(votes)
+//         })
+//       })
+//       await user.getComments()
+//       .then(comments => {
+//         userComments = comments
+//         return userComments
+//       })
+//       userComments.forEach(comment => {
+//         await comment.getVotes()
+//         .then(votes => {
+//           commentVotes.push(votes)
+//         })
+//       })
+//       return res.json({user, userPosts, postVotes, commentVotes})
+//     })
+//   })
+// })
+
 //create a new CATEGORY
 app.post('/category', (req, res) => {
   let categoryData = {
@@ -271,25 +309,25 @@ app.get('/post/:id', (req, res) => {
       id: req.params.id
     }
   })
-  .then(post => {
+  .then( async (post) => {
     let currentPost = post
     let postUser
     let postCategory
     let postComments
     let voteTotal = 0
-    currentPost.getUser()
+    await currentPost.getUser()
     .then(user =>{
       postUser = user
       return postUser
     })
-    currentPost.getVotes()
+    await currentPost.getVotes()
     .then(votes => {
       votes.forEach(vote => {
         voteTotal += vote.vote
       })
       return voteTotal
     })
-    currentPost.getCategory()
+    await currentPost.getCategory()
     .then(category => {
       postCategory = category
       return postCategory
@@ -359,16 +397,16 @@ app.get('/comment/:id/user', (req, res) => {
       id: req.params.id
     }
   })
-  .then(comment => {
+  .then( async (comment) => {
     let currentComment = comment
     let commentUser
     let voteTotal = 0
-    currentComment.getUser()
+    await currentComment.getUser()
     .then(user => {
       commentUser = user
       return commentUser
     })
-    currentComment.getVotes()
+    await currentComment.getVotes()
     .then(votes => {
       votes.forEach(vote => {
         voteTotal += vote.vote

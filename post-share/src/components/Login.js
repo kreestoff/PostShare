@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import {Form, Container} from 'react-bootstrap'
 
 
 export default class Login extends Component {
@@ -32,12 +33,34 @@ export default class Login extends Component {
 
     render() {
         return(
-            <div className="form">
-                <form onSubmit={this.login}>
-                    <input type="text" name="username" placeholder="Username"/><br></br>
-                    <input type="password" name="password" placeholder="Password"/><br></br>
-                    <input type="submit" value="Login"/>
-                </form>
+            <div className="loginForm">
+                <Container style={{
+                    "display": "block",
+                    "margin": "auto"
+                }}>
+                    <div className="FormHeader">
+                        <h2>Login Form</h2>
+                    </div>
+                    <Form onSubmit={this.login} style={{
+                        "width": "75%", 
+                        "borderStyle": "solid", 
+                        "padding": "30px",
+                        "margin": "auto",
+                        "backgroundColor": "#f4f4f4",
+                        "borderRadius": "25px"
+                        }}> 
+                        <Form.Group >
+                            <Form.Label>Enter Your Username</Form.Label>
+                            <Form.Control size="lg" type="text" placeholder="username..." />
+                        </Form.Group>
+                        <Form.Group >
+                            <Form.Label>Enter Password</Form.Label>
+                            <Form.Control size="lg" type="password" placeholder="password..." />
+                        </Form.Group>
+                        <input type="submit" value="Login"/>
+                    </Form>
+                </Container>
+
             </div>
         )
     }

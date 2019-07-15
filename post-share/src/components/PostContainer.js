@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PostPreview from './PostPreview';
 import PostView from './PostView';
 import CategorySelector from './CategorySelector'
+import { Form } from 'react-bootstrap'
 
 
 export default class PostContainer extends Component {
@@ -10,7 +11,6 @@ export default class PostContainer extends Component {
         this.state = {
             originalPosts: [],
             posts: []
-
         }
     }
 
@@ -18,9 +18,10 @@ export default class PostContainer extends Component {
         fetch('http://localhost:3000/post')
         .then(res => res.json())
         .then(obj => {
+            let sorted = obj.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1)
             this.setState({
-                originalPosts: obj,
-                posts: obj
+                originalPosts: sorted,
+                posts: sorted
             })
         })
     }
@@ -104,22 +105,36 @@ export default class PostContainer extends Component {
                 posts: this.state.originalPosts
             })
         } else {
-            console.log("sorting by something")
             let filteredPosts = this.state.originalPosts.filter(post => post.categoryId == category)
-            console.log(filteredPosts)
             this.setState({
                 posts: filteredPosts
             })
         }
     }
 
+    sortBy = (e) => {
+
+    }
+
     render() {
         return(
-            <div className="container">
+            <div className="postContainer">
                 <div className="post-container-header">
-                    <form onChange={(e) => this.filterPosts(e)}>
+                    <Form onChange={(e) => this.filterPosts(e)} style={{
+                        "width": "30%",
+                        "align-text": "center",
+                        "margin": "auto"
+                    }}>
                     <CategorySelector />
-                    </form>
+                    </Form>
+                    {/* <Form>
+                        <Form.Control as="Select">
+                            <option value="new">Sort by New</option>
+                            <option value="old">Sort by Old</option>
+                            <option value="highestvotes">Sort by Highest Voted</option>
+                            <option value="lowestvotes">Sort by Highest Voted</option>
+                        </Form.Control>
+                    </Form> */}
                 </div>
                 {
                     !this.state.post ? null :

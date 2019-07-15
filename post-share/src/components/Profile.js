@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PostPreview from './PostPreview';
 import PostView from './PostView';
 import CategorySelector from './CategorySelector'
+import { Form } from 'react-bootstrap'
 
 
 export default class Profile extends Component {
@@ -24,13 +25,14 @@ export default class Profile extends Component {
         })
         .then(res => res.json())
         .then(obj => {
-            console.log(obj)
+            let sorted = obj.userPosts.sort((a, b) => (a.createdAt < b.createdAt) ? 1 : -1)
             this.setState({
                 user: {...obj.user},
-                originalPosts: obj.userPosts,
-                user_posts: obj.userPosts,
+                originalPosts: sorted,
+                user_posts: sorted,
                 loaded: true
             })
+            console.log(obj)
         })
     }
 
@@ -71,19 +73,23 @@ export default class Profile extends Component {
 
     render() {
         return(
-            <div>
+            <div className="profileContainer">
                 {
                     !this.state.post ? null : <PostView post={this.state.post} outsideClick={this.outsideClick} closePostView={this.closePostView} />
                 }
                 {
                 !this.state.loaded && !this.state.post ? null :
                 <>
-                <div className="profile-header">
-                    <h3>Hello {this.state.user.username}!</h3>
-                    <form onChange={(e) => this.filterPosts(e)}>
-                        <CategorySelector />
-                    </form>
-                
+                <div className="profileHeader">
+                    <h3>Hello {this.state.user.username}!</h3> <br></br>
+                    <h3>Check how your Posts are doing</h3><br></br>
+                    <Form onChange={(e) => this.filterPosts(e)} style={{
+                        "width": "30%",
+                        "align-text": "center",
+                        "margin": "auto"
+                    }}>
+                    <CategorySelector />
+                    </Form>
                 </div>
                     <div>
                         <ul>

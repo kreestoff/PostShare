@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CategorySelector from './CategorySelector'
+import {Form, Container} from 'react-bootstrap'
 
 
 export default class NewPost extends Component {
@@ -30,25 +31,50 @@ export default class NewPost extends Component {
             })
             .then(res => res.json())
             .then(obj => {
-                postForm.reset()
+                window.location.replace('/')
             })
         }
     }
 
     render() {
         return(
-            <div>
-                <form id="postForm"onSubmit={this.createPost}>
-                    <h5>Paste an Image of GIF url</h5>
-                    <input type="text" name="image" placeholder="Image url" /><br></br>
-                    <input type="text" name="title" placeholder="Title Required"/><br></br>
-                    <textarea rows="5" cols="80" placeholder="Enter optional description..."></textarea><br></br>
-                    <h5>Choose a Category</h5>
+            <div className="newPostForm">
+                <Container style={{
+                    "display": "block",
+                    "margin": "auto"
+                }}>
+                <div className="FormHeader">
+                    <h2>Submit a New Post</h2>
+                </div>
+                <Form id="postForm" onSubmit={this.createPost} style={{
+                    "width": "75%", 
+                    "borderStyle": "solid", 
+                    "padding": "30px",
+                    "margin": "auto",
+                    "backgroundColor": "#f4f4f4",
+                    "borderRadius": "25px"
+                    }}>
+                    <Form.Group >
+                        <Form.Label>Paste a url for an Image or GIF</Form.Label>
+                        <Form.Control size="lg" type="text" placeholder="url..." />
+                        <Form.Text className="text-muted">Optional</Form.Text>
+                    </Form.Group >
+                    <Form.Group >
+                        <Form.Label>Give your post a title</Form.Label>
+                        <Form.Control size="lg" type="text" placeholder="an interesting title..." />
+                        <Form.Text className="text-muted">Required</Form.Text>
+                    </Form.Group >
+                    <Form.Group >
+                        <Form.Label>Enter a description</Form.Label>
+                        <Form.Control size="lg" as="textarea" rows="3" placeholder="extra info..." />
+                        <Form.Text className="text-muted">Optional</Form.Text>
+                    </Form.Group >
                     <CategorySelector /><br></br>
                     <input type="submit" value="Create Post"/>
-                </form>
+                </Form>
+                </Container>
             </div>
         )
     }
-
+    
 }

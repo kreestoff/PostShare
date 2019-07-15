@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import {Form, Container} from 'react-bootstrap'
+
 
 
 export default class SignUp extends Component {
@@ -13,43 +15,72 @@ export default class SignUp extends Component {
             alert("Passwords to not match please try again.")
             e.target[2].value = ""
             e.target[3].value = ""
-        }
-        if (username !== "" && password1 !== "") {
-            fetch('http://localhost:3000/signup', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    username, email, password: password1
+        } else {
+            if (username !== "" && password1 !== "") {
+                fetch('http://localhost:3000/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      body: JSON.stringify({
+                        username, email, password: password1
+                })
             })
-        })
-        .then(res => res.json())
-        .then(obj => {
-            if(obj.error){
-                alert(obj.error)
-            } else {
-                alert('account creation successful, please login')
-                window.location.replace('/login')
-            }
-        })
-        .catch(err => {
-            alert(err)
-        })
+            .then(res => res.json())
+            .then(obj => {
+                if(obj.error){
+                    alert(obj.error)
+                } else {
+                    console.log(obj)
+                    alert('Account created. Please login to post, vote, and comment.')
+                    window.location.replace('/login')
+                }
+            })
+            .catch(err => {
+                alert(err)
+            })
+        }
     }
 }
 
 
     render() {
         return(
-            <div className="form">
-                <form onSubmit={this.signUp}>
-                    <input type="text" name="username" placeholder="Username"/><br></br>
-                    <input type="text" name="email" placeholder="Email" /><br></br>
-                    <input type="password" name="password" placeholder="Password"/><br></br>
-                    <input type="password" name="password" placeholder="Confirm Password"/><br></br>
-                    <input type="submit" value="Create Account"/><br></br>
-                </form>
+            <div className="signupForm">
+                <Container style={{
+                    "display": "block",
+                    "margin": "auto"
+                }}>
+                    <div className="FormHeader">
+                        <h2>SignUp Form</h2>
+                    </div>
+                    <Form onSubmit={this.signUp}style={{
+                        "width": "75%", 
+                        "borderStyle": "solid", 
+                        "padding": "30px",
+                        "margin": "auto",
+                        "backgroundColor": "#f4f4f4",
+                        "borderRadius": "25px"
+                        }}>
+                        <Form.Group>
+                            <Form.Label>Enter a Username</Form.Label>
+                            <Form.Control size="lg" type="text" placeholder="username..." />
+                            <Form.Text className="text-muted">This will be your displayed name</Form.Text>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Enter an Email</Form.Label>
+                            <Form.Control size="lg" type="email" placeholder="email..." />
+                            <Form.Text className="text-muted">Your email will never be shared</Form.Text>
+                        </Form.Group>
+                        <Form.Group>
+                            <Form.Label>Enter a Password</Form.Label>
+                            <Form.Control size="lg" type="password" placeholder="password..." />
+                            <Form.Label>Re-type your Password</Form.Label>
+                            <Form.Control size="lg" type="password" placeholder="re-type password..." />
+                        </Form.Group>
+                        <input type="submit" value="Sign Up" />
+                    </Form>
+                </Container>
             </div>
         )
     }
