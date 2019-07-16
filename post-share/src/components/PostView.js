@@ -105,7 +105,7 @@ export default class PostView extends Component {
               postId, commentId, content
             })
         })
-        window.location.reload()
+        if(content !== ""){window.location.reload()}
     }
 
 
@@ -137,16 +137,17 @@ export default class PostView extends Component {
                         {
                         !this.state.post.image ? null :
                             <div className="contentContainer">
-                                <img className="mediaContent" src={this.state.post.image} alt="sorry!"></img>
+                                <img style={{"max-width": "800px", "max-height": "800px"}} className="mediaContent" src={this.state.post.image} alt="sorry!"></img>
                             </div> 
                         }
-                        <div className="postViewTitle">{this.state.post.title}</div>
+                        <div className="postViewTitle">{this.state.post.title}</div><br></br>
+                        <div className="postViewDescription">{this.state.post.description}</div>
                         { !localStorage.token ? null :
                           <CommentForm postId={this.state.post.id} userId={this.state.user.id} createComment={this.createComment}/>
                         }
                         {/* Container for all comments */}
                         {
-                        (!this.state.comments) ? null :
+                        (!this.state.comments.length > 0) ? null :
                         <div className="commentContainer">
                             {   
                                 this.getTree(this.state.comments).map(tree => {
@@ -155,7 +156,6 @@ export default class PostView extends Component {
                                
                                 
                             }
-
                         </div>
                         }
                     </div>

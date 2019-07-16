@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Form } from 'react-bootstrap';
 
 
 
@@ -12,15 +13,15 @@ export default class CommentForm extends Component {
           <div>
             {
               !this.props.commentId ?
-                <form id="postComment" onSubmit={(e) => this.props.createComment(e)}>
-                    <textarea className="commentTextArea" placeholder="Share your thoughts..."></textarea><br></br>
+                <Form id="postComment" onSubmit={(e) => this.props.createComment(e)}>
+                    <Form.Control as="textarea" className="commentTextArea" placeholder="Share your thoughts..." />
                     <button>Submit</button>
-                </form> 
+                </Form> 
                 :
-                <form id={`postComment${this.props.commentId}`} onSubmit={(e) => this.props.createComment(e)}>
-                    <textarea className="commentTextArea" placeholder="Share your thoughts..."></textarea><br></br>
+                <Form id="commentComment" onSubmit={(e) => this.props.createComment(e)}>
+                    <Form.Control as="textarea" className="autoExpand" className="commentTextArea" placeholder="Share your thoughts..." /><br></br>
                     <button>Submit</button>
-                </form> 
+                </Form> 
 
             }
           </div>

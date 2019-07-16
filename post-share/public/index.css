@@ -5,37 +5,80 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f4f4f4;
+  background-color: rgb(53, 53, 53);
 }
 
 
 
-/* .form {
-  background-color: #4c4c4c;
-  height: 100px;
-  width: 50%;
-  border-style: solid;
-  border-width: 1px;
+.loginForm {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10%;
+}
+.FormHeader {
+  margin: 10px auto;
+  text-align: center;
+  color: white;
+}
 
-} */
+.signupForm {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 10%;
+}
+
+.newPostForm {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5%;
+}
+
+.postContainer {
+  margin: 6% auto;
+}
+.postContainerSelector {
+  width: 50%;
+  margin: 10px auto;
+  text-align: center;
+}
+
+.profileContainer {
+  margin: 6% auto;
+}
+.profileHeader {
+  margin: 10px auto;
+  text-align: center;
+  color: white;
+}
 
 .postPreview {
   position: relative;
   border-style: solid;
   border-width: 1px;
   border-color: #2e2e2e;
+  border-radius: 5px;
+  background-color: #f4f4f4;
   margin: 10px auto;
-  width: 70%;
-  height: 100px;
+  width: 50%;
+  height: 102px;
+  overflow: auto;
+  box-shadow: 5px 5px 5px rgb(85, 58, 116)
 }
-
 /* the little div to the left of post preview */
 .mediaPreview {
   float: left;
   position: relative;
-  vertical-align: center;
-  background: #f9f9f9;
+  background: #111;
+  margin: auto;
+  overflow: auto;
+  height: 100px;
+  width: 100px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
 }
+
+
 
 /* for the modal that shows full content with comments */
 #postView {
@@ -46,44 +89,51 @@ body {
   height: 100%;
   width: 100%;
   overflow: auto;
-  background-color: rgba(0,0,0,0.7)
+  background-color: rgba(0,0,0,0.8)
 }
-
+/* This is the close button for the modal */
 #closePostView {
   color: #3d3d3d;
   float: right;
   font-size: 20px;
 }
-
-
 #closePostView:hover,#closePostView:focus {
   color: #aaa;
   cursor: pointer;
 }
-
+.mediaContent {
+  position: relative;
+  padding: 20px;
+  overflow: auto;
+  margin: auto;
+}
 .postContent {
   background-color: #f4f4f4;
-  margin: 5% auto;
+  margin: 7% auto;
   padding: 20px;
   width: 80% ;
   box-shadow: 0 5px 8px 0 rgba(0,0,0,1);
+  border-radius: 5px;
 }
-
 .contentContainer {
   padding: 20px;
   position: relative;
   margin: 15px;
+  display: flex;
+  align-items: center;
+  width: 90% auto;
+  height: 90% auto;
+  background-color: #222;
+  border-radius: 2px;
 }
 
-.mediaContent {
-  position: relative;
-  padding: 20px;
-  alignment: center;
-}
+
 
 /* this is  for the comment form*/
-.postComment {
-  border: 1px;
+#postComment {
+  margin: 3px auto;
+  padding: 5px auto;
+  display: flex;
 }
 
 /* this is for the text area in comment form */
@@ -97,7 +147,7 @@ body {
   position: relative;
   border-style: solid;
   border-width: 1px;
-  border-color: #2e2e2e;
+  border-color: #979595;;
   margin: 10px auto;
   width: 95%;
   padding: 5px;
@@ -105,17 +155,23 @@ body {
 
 .comment {
   position: relative;
-  border-left: solid;
+  /* border-left: solid;
   border-width: 1px;
-  margin: 5px;
+  border-color: #979595; */
+  margin:  10px 10px 10px 50px;
   padding: 10px;
-  width: 90%;
+  width: 75%;
   height: 40px auto;
+}
+#commentComment {
+  margin: 3px auto;
+  padding: 5px auto;
+  display: flex;
 }
 
 .vote-container {
   float: left;
-  border-right: 1px, solid, black;
+  border: 1px, solid, black;
   padding: 5px;
   z-index: 1;
 }

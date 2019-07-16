@@ -58,36 +58,37 @@ export default class Comment extends Component {
               postId, commentId, content
             })
         })
+        window.location.reload()
     }
 
-    upVote = () => {
-      if(localStorage.token) {
-        fetch(`http://localhost:3000/comment/${this.props.comment.comment.id}/upvote`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.token}`
-                
-            },
-            body: JSON.stringify({
-                user_id: this.state.user.id
-            })
-        })
-        .then(res => res.json())
-        .then(obj => {
-            console.log(obj)
-            let countDiv = document.getElementById(`commentCount${this.props.comment.comment.id}`)
-            let count = parseInt(countDiv.innerText)
-            if(obj.status === 'upvoted') {
-                let newTotal = count + 1
-                countDiv.innerText = newTotal
-            } else if(obj.status === 'downvote to upvote') {
-                let newTotal = count + 2
-                countDiv.innerText = newTotal
-              }
-        })
-      } else {alert("Login or Sign up to vote")}
-  }
+  upVote = () => {
+    if(localStorage.token) {
+      fetch(`http://localhost:3000/comment/${this.props.comment.comment.id}/upvote`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.token}`
+              
+          },
+          body: JSON.stringify({
+              user_id: this.state.user.id
+          })
+      })
+      .then(res => res.json())
+      .then(obj => {
+          console.log(obj)
+          let countDiv = document.getElementById(`commentCount${this.props.comment.comment.id}`)
+          let count = parseInt(countDiv.innerText)
+          if(obj.status === 'upvoted') {
+              let newTotal = count + 1
+              countDiv.innerText = newTotal
+          } else if(obj.status === 'downvote to upvote') {
+              let newTotal = count + 2
+              countDiv.innerText = newTotal
+            }
+      })
+    } else {alert("Login or Sign up to vote")}
+}
 
   downVote = () => {
     if(localStorage.token) {
@@ -118,6 +119,12 @@ export default class Comment extends Component {
     } else {alert("Login or Sign up to vote")}
 }
 
+hideConversation = () => {
+  let newShow = !this.state.showComments
+  this.setState({
+    showComments: newShow
+  })
+}
   
 
     render() {
@@ -129,11 +136,14 @@ export default class Comment extends Component {
               <div>{this.state.user.username}</div>
               <div >{this.props.comment.comment.content}</div>
               <button onClick={(e) => this.respondToComment(e)}>reply</button>
+              {(this.props.comment.children) ? <button onClick={this.hideConversation}>Hide/Show Conversation</button> : null }
             {this.state.clicked ? <CommentForm createComment={this.createComment} commentId={this.props.comment.comment.id}/> : null}
-            { !this.props.comment.children ? null :
+            { 
+              (this.props.comment.children && !this.state.showComments) ? null :
               this.props.comment.children.map(comment => {
                 return <Comment key={comment.id} comment={comment} currentUser={this.props.currentUser} />
               })
+
             }
             </>
             }

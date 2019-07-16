@@ -1,4 +1,5 @@
 import React, {Component} from 'react'
+import {Form} from 'react-bootstrap'
     
 export default class CategorySelector extends Component {
     constructor(){
@@ -20,15 +21,15 @@ export default class CategorySelector extends Component {
 
     render() {
         return(
-            <select>
-                <option value="">Select a Category</option>
-            {   
-                
-                this.state.categories.map(category => {
-                 return <option key={category.id} value={category.id}>{category.name}</option>
-                })
-            } 
-            </select>
+         <Form.Control as="Select">
+             <option value="">Select a Category</option>
+         {   
+             
+             this.state.categories.map(category => {
+              return <option key={category.id} value={category.id}>{category.name}</option>
+             })
+         } 
+         </Form.Control>
         )
     }
 
